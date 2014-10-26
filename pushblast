@@ -5,19 +5,19 @@ if [[ $1 = "" ]] ; then
   exit 1
 fi
 
-if [ ! -d ~/.config/pushblast/lib ] ; then
-  mkdir -p ~/.config/pushblast/lib
+if [ ! -d /usr/local/share/pushblast/deps ] ; then
+  mkdir -p /usr/local/share/pushblast/deps
 fi
 
-if [ ! -e ~/.config/pushblast/lib/pushbullet ] ; then
+if [ ! -e /usr/local/share/pushblast/deps/pushbullet ] ; then
   echo "Downloading helper file 1 of 1:"
-  curl -# https://raw.githubusercontent.com/Red5d/pushbullet-bash/master/pushbullet > ~/.config/pushblast/lib/pushbullet
+  curl -# https://raw.githubusercontent.com/Red5d/pushbullet-bash/master/pushbullet > /usr/local/share/pushblast/deps/pushbullet
 fi
 
-chmod +x ~/.config/pushblast/lib/pushbullet
+chmod +x /usr/local/share/pushblast/deps/pushbullet
 
-if [ ! -e ~/.config/pushblast/pushblastrc ] ; then
-  touch ~/.config/pushblast/pushblastrc
+if [ ! -e /usr/local/share/pushblast/pushblastrc ] ; then
+  touch /usr/local/share/pushblast/pushblastrc
   echo "Welcome to PushBlast! Before I get started, I'll need a few things from you regarding your PushBullet account."
   echo -e "\nPlease provide your PushBullet API key, also known as an access token. I need this to be able to push stuff: "
   read API_KEY
@@ -25,33 +25,49 @@ if [ ! -e ~/.config/pushblast/pushblastrc ] ; then
   read DEV_NAME
   echo -e "\nPlease name this computer. Computer names are shown on the notification so you know where a notification came from."
   read COMP_NAME
-  echo "API_KEY=\"$API_KEY\"" >> ~/.config/pushblast/pushblastrc
-  echo "DEV_NAME=\"$DEV_NAME\"" >> ~/.config/pushblast/pushblastrc
-  echo "COMP_NAME=\"$COMP_NAME\"" >> ~/.config/pushblast/pushblastrc
-  echo -e "\nLooks like we're all good to go. I'll go ahead and run the command you gave."
+  echo "API_KEY=\"$API_KEY\"" >> /usr/local/share/pushblast/pushblastrc
+  echo "DEV_NAME=\"$DEV_NAME\"" >> /usr/local/share/pushblast/pushblastrc
+  echo "COMP_NAME=\"$COMP_NAME\"" >> /usr/local/share/pushblast/pushblastrc
+  echo -e "\nLooks like we're all good to go. I'll go ahead and run the command you gave.\n"
 fi
 
-source ~/.config/pushblast/pushblastrc
+API_KEY_OLD=$API_KEY
+DEV_NAME_OLD=$DEV_NAME
+COMP_NAME_OLD=$COMP_NAME
 
-if [[ $API_KEY = "" ]] ; then
+source /usr/local/share/pushblast/pushblastrc
+
+if [[ $API_KEY = "" && $API_KEY_OLD = "" ]] ; then
   echo "Invalid API key. Find your access token at https://www.pushbullet.com/account."
   exit 1
+fi
+
+if [[ $API_KEY_OLD != "" ]] ; then
+  API_KEY=$API_KEY_OLD
 fi
 
 touch ~/.config/pushbullet
 echo "API_KEY=$API_KEY" > ~/.config/pushbullet
 
-if [[ $DEV_NAME = "" ]] ; then
+if [[ $DEV_NAME = "" && $DEV_NAME_OLD = "" ]] ; then
   echo "Invalid target device name. Find your list of devices at https://www.pushbullet.com."
   exit 1
 fi
 
-if [[ $COMP_NAME = "" ]] ; then
+if [[ $DEV_NAME_OLD != "" ]] ; then
+  DEV_NAME=$DEV_NAME_OLD
+fi
+
+if [[ $COMP_NAME = "" && $COMP_NAME_OLD = "" ]] ; then
   echo "Invalid computer name. Enter a name for this computer (it does not have to be unique or in use with Pushbullet)."
   exit 1
 fi
 
-(~/.config/pushblast/lib/pushbullet list | grep $DEV_NAME) >/dev/null 2>&1
+if [[ $COMP_NAME_OLD != "" ]] ; then
+  COMP_NAME=$COMP_NAME_OLD
+fi
+
+(/usr/local/share/pushblast/deps/pushbullet list | grep $DEV_NAME) >/dev/null 2>&1
 
 if [ $? != 0 ] ; then
   echo "The device $DEV_NAME does not exist or is unusable."
@@ -62,5 +78,6 @@ EXECUTE=$1
 $1
 EXIT=$?
 
-~/.config/pushblast/lib/pushbullet push $DEV_NAME note "The task \"$EXECUTE\" on \"$COMP_NAME\" finished with exit code $EXIT." >/dev/null 2>&1
+/usr/local/share/pushblast/deps/pushbullet push $DEV_NAME note "The task \"$EXECUTE\" on \"$COMP_NAME\" finished with exit code $EXIT." >/dev/null 2>&1
+rm ~/.config/pushbullet
 exit $EXIT
