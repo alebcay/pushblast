@@ -71,6 +71,7 @@ fi
 
 if [ $? != 0 ] ; then
   echo "The device $DEV_NAME does not exist or is unusable."
+  /usr/local/share/pushblast/deps/pushbullet list
   exit 1
 fi
 
