@@ -52,7 +52,7 @@ if [[ $? -gt 0 ]] ; then
   exit 1
 fi
 
-echo "API_KEY=$API_KEY" > ~/.config/pushbullet
+echo "PM_API_KEY=$API_KEY" > ~/.config/pushbullet
 
 if [[ $DEV_NAME = "" && $DEV_NAME_OLD = "" ]] ; then
   echo "Invalid target device name. Find your list of devices at https://www.pushbullet.com."
